@@ -1,3 +1,2 @@
-image manipulation/image/frames/*
-!/image manipulation/image/frames/.gitkeep
-image manipulation/image/*
+!imageManipulation/image/frames/.gitkeep
+/imageManipulation/image/*
