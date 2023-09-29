@@ -1,2 +1,6 @@
 !imageManipulation/image/frames/.gitkeep
 /imageManipulation/image/*
+
+
+!imageManipulation/circuitPython SPI/GIT/.gitkeep
+/imageManipulation/circuitPython SPI/GIT/*
