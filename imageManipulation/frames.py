@@ -1,6 +1,14 @@
 from PIL import Image, ImageSequence
+import sys
+import os
 
-image_old = 'image\\cat.gif'
+print(sys.argv[1])
+if sys.argv[1] == "x":
+    for file in os.listdir("image/frames/"):
+        if file != ".gitkeep":
+            os.remove("image/frames/"+file)
+
+image_old = 'image\\vaporwave.gif'
 im = Image.open(image_old)
 # im = im.convert('1')
 
@@ -20,7 +28,7 @@ for frame in ImageSequence.Iterator(im):
     # Calculate the target dimensions (128x64)
     target_width = 128
     target_height = 64
-    frame = frame.convert('P')
+    frame = frame.convert('1')
     # If the aspect ratio of the original image is wider than the target, crop the sides
     if aspect_ratio > (target_width / target_height):
         new_width = int(original_height * (target_width / target_height))
@@ -36,7 +44,8 @@ for frame in ImageSequence.Iterator(im):
 
     # Resize the image to the target dimensions
     frame = frame.resize((target_width, target_height), Image.Resampling.LANCZOS)
-    frame.save("image\\frames\\"+str(i)+".bmp", lossless = True)
+    frame.save("image\\frames\\"+str(i)+".pbm", lossless = True)
 im.close()
-imm = Image.open("image\\frames\\1.bmp")
+imm = Image.open("image\\frames\\6.pbm")
+imm.show()
 print(imm.mode)
