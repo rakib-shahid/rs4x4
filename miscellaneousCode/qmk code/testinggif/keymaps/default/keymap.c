@@ -40,21 +40,40 @@ bool qp_st7735_init(painter_device_t device, painter_rotation_t rotation) {
 
     return true;
 }
+
+
 // when KB starts running, set things up
 void keyboard_post_init_user(void) {
     setPinOutput(GP29);
     writePinHigh(GP29);
-    debug_enable = true;
+    // debug_enable = true;
     display = qp_st7735_make_spi_device(130, 161, GP18, GP16, GP17, 0, 3);
     qp_init(display, QP_ROTATION_180);
     qp_rect(display, 0,0,130, 161, HSV_BLACK, true);
     image = qp_load_image_mem(gfx_monaco130c16);
-    qp_animate(display, 0, 0, image);
+    
 }
 int i = 0;
 bool process_record_user(uint16_t keycode, keyrecord_t * record) {
+    static deferred_token my_anim;
     if (record->event.pressed) {
-
+        int x = i % 4;
+        switch (x){
+            case 0:
+                my_anim = qp_animate(display, 0, 0, image);
+                break;
+            case 1:
+                qp_stop_animation(my_anim);
+                qp_rect(display, 0, 0, 130, 161, HSV_RED, true);
+                break;
+            case 2:
+                qp_rect(display, 0, 0, 130, 161, HSV_GREEN, true);
+                break;
+            case 3:
+                qp_rect(display, 0, 0, 130, 161, HSV_BLUE, true);
+                break;
+        }
+        i++;
     }
 
     return true;
