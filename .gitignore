@@ -1,6 +1,6 @@
-!imageManipulation/image/frames/.gitkeep
-/imageManipulation/image/*
+!miscellaneousCode/imageManipulation/image/frames/.gitkeep
+miscellaneousCode//imageManipulation/image/*
 
 
-!imageManipulation/circuitPython SPI/GIT/.gitkeep
-/imageManipulation/circuitPython SPI/GIT/*
+!miscellaneousCode/imageManipulation/circuitPython SPI/GIT/.gitkeep
+miscellaneousCode//imageManipulation/circuitPython SPI/GIT/*
