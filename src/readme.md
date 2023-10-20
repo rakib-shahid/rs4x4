@@ -2,12 +2,13 @@
 
 ![rs4x4](https://github.com/rakib-shahid/rs4x4/blob/main/miscellaneousCode/imageManipulation/pic.jpg?raw=true)
 
-A 4x4 macropad built with the YD-RP2040, has a 128x64 OLED display, and rgb lighting
+A vial compatible 4x4 macropad built with the YD-RP2040, has a 128x64 OLED display, and rgb lighting
+
 [original animation source](https://gifer.com/en/1F4J)
 
 * Keyboard Maintainer: [Rakib Shahid](https://github.com/rakib-shahid)
 * Hardware Supported: YD-RP2040, 128x64 OLED
-* Hardware Availability: [YD-RP2040](https://www.aliexpress.us/item/3256805028604606.html?spm=a2g0o.productlist.main.21.31d2ddc8WyBH13&algo_pvid=16302719-51e0-4493-adfe-9f8661a4c56f&algo_exp_id=16302719-51e0-4493-adfe-9f8661a4c56f-10&pdp_npi=4%40dis%21USD%211.69%211.39%21%21%211.69%21%21%402101c80016977784593405416e18ba%2112000032212849299%21sea%21US%212965339367%21&curPageLogUid=qeTmb6BkfQnN)
+* Hardware Availability: [YD-RP2040](https://www.aliexpress.us/item/3256805444428998.html?spm=a2g0o.order_list.order_list_main.56.5a401802sRQUS8&gatewayAdapt=glo2usa) [128x64 OLED I2C Display](https://www.aliexpress.us/item/2251832710656633.html?spm=a2g0o.order_list.order_list_main.106.5a401802sRQUS8&gatewayAdapt=glo2usa)
 
 Make example for this keyboard (after setting up your build environment):
 
