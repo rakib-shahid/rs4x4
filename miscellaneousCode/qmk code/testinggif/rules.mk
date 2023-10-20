@@ -16,5 +16,5 @@ SRC += monaco130c16.qgf.c
 # SRC += sana240.qgf.c
 EXTRALDFLAGS = -Wl,--defsym,FLASH_LEN=8192k
 # SRC += fma.qgf.c
-CONSOLE_ENABLE = yes
+# CONSOLE_ENABLE = yes
 # SRC += testingimage.qgf.c
