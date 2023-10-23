@@ -3,6 +3,10 @@
 #include QMK_KEYBOARD_H
 #include "planets.c"
 
+#define KC_CUT LCTL(KC_X)
+#define KC_COPY LCTL(KC_C)
+#define KC_PASTE LCTL(KC_V)
+
 #ifdef OLED_ENABLE
 
 enum layer_names{
@@ -101,15 +105,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // MEDIA KEYS
     [1] = LAYOUT_ortho_4x4(
         KC_FIND,                KC_CAPS_LOCK,                KC_WH_U,                KC_AUDIO_MUTE,
-        KC_MEDIA_PREV_TRACK,    KC_MEDIA_PLAY_PAUSE,    KC_MEDIA_NEXT_TRACK,    KC_AUDIO_VOL_UP,
+        KC_MEDIA_PREV_TRACK,    KC_MPLY,    KC_MEDIA_NEXT_TRACK,    KC_AUDIO_VOL_UP,
         KC_CALC,                KC_MYCM,                KC_WH_D,                KC_AUDIO_VOL_DOWN,
-        TO(2),                  KC_CUT,                 KC_COPY,                KC_PSTE
+        TO(2),                  KC_CUT,                 KC_COPY,                KC_PASTE
     ),
     // NAVIGATION KEYS
     [2] = LAYOUT_ortho_4x4(
         KC_INSERT,      KC_HOME,    KC_PGUP,        KC_PSCR,
         KC_DELETE,      KC_END,     KC_PGDN,        KC_SCROLL_LOCK,
-        KC_COPY,        KC_PSTE,    KC_UP,          KC_PAUSE,
+        KC_COPY,        KC_PASTE,    KC_UP,          KC_PAUSE,
         TO(3),          KC_LEFT,    KC_DOWN,        KC_RIGHT
     ),
     // blank for now
