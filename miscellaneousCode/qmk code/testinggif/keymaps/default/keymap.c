@@ -15,9 +15,38 @@
 static painter_device_t display = NULL;
 static painter_image_handle_t image = NULL;
 static painter_font_handle_t my_font;
-static char *testText = "Hello from QMK!";
+static char *testText = "test text";
 static deferred_token my_anim;
 static bool animating = false;
+
+// storage for arguments passed to the executor
+// typedef struct {
+//     painter_device_t device;
+//     uint16_t x;
+//     uint16_t y;
+//     painter_font_handle_t font;
+//     char *text;
+//     uint8_t delay_ms;
+//     // colors too?
+// } periodic_drawtext_args_t;
+
+// executor logic
+// uint32_t drawtext_callback(uint32_t trigger_time, void *cb_arg) {
+//     // periodic_drawtext_args_t args = *(periodic_drawtext_args_t *)cb_arg;
+
+//     bool ret = qp_drawtext(display, 0, 0, my_font, testText);
+    
+//     if (ret) {
+//         return 17;
+//     }
+    
+//     // stop repeating if function failed to draw
+//     free(testText);
+//     return 0;
+// }
+
+
+
 
 // void toggleAnimation(bool animating){
 //     if (!animating){
@@ -79,7 +108,7 @@ void housekeeping_task_user(void){
         if (!animating){
             setPinOutput(GP29);
             writePinHigh(GP29);
-            my_anim = qp_animate(display, 0, 10, image);
+            my_anim = qp_animate(display, 0, 15, image);
             animating = true;
         }
     }
@@ -104,7 +133,7 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
     }
     raw_hid_send(response, length);
     // testText = data;
-    testText = "message received";
+    testText = (char){data};
     // testText = ;
     qp_rect(display, 0,0,130, 12, HSV_BLACK, true);
 
@@ -128,13 +157,18 @@ void keyboard_post_init_user(void) {
     image = qp_load_image_mem(gfx_monaco130);
     // image = qp_load_image_mem(gfx_sanacut);
 
+    // periodic_drawtext_args_t args = {display, 2, 2, my_font, testText,100};
+    // defer_exec(100, drawtext_callback, NULL);
+
     // animate image
-    my_anim = qp_animate(display, 0, 10, image);
+    my_anim = qp_animate(display, 0, 15, image);
     animating = true;
 
     // load font
     my_font = qp_load_font_mem(font_aovel);
     qp_drawtext(display, 2, 2, my_font, testText);
+
+    
 }
 
 
