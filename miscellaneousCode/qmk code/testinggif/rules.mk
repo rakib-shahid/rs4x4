@@ -12,6 +12,7 @@ SRC += aovel.qff.c
 
 
 EXTRALDFLAGS = -Wl,--defsym,FLASH_LEN=8192k
+# DEFERRED_EXEC_ENABLE = yes
 RAW_ENABLE = yes
 LTO_ENABLE = yes
 # CONSOLE_ENABLE = yes
