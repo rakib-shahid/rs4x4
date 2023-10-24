@@ -14,6 +14,21 @@
 
 static painter_device_t display = NULL;
 static painter_image_handle_t image = NULL;
+static painter_font_handle_t my_font;
+static char *testText = "Hello from QMK!";
+static deferred_token my_anim;
+static bool animating = false;
+
+// void toggleAnimation(bool animating){
+//     if (!animating){
+//         my_anim = qp_animate(display, 0, 10, image);
+//         animating = true;
+//     }
+//     else {
+//         qp_stop_animation(my_anim);
+//         animating = false;
+//     }
+// }
 
 bool qp_st7735_init(painter_device_t device, painter_rotation_t rotation) {
     // clang-format off
@@ -47,47 +62,81 @@ bool qp_st7735_init(painter_device_t device, painter_rotation_t rotation) {
     return true;
 }
 
-
 void housekeeping_task_user(void){
-    if (last_input_activity_elapsed() > QUANTUM_PAINTER_DISPLAY_TIMEOUT){
+    if (last_input_activity_elapsed() > 10000){
+        // turn animation off on timeout
+        if (animating){
+            setPinOutput(GP29);
+            writePinLow(GP29);
+            qp_stop_animation(my_anim);
+            animating = false;
+        }
         qp_rect(display, 0,0,130, 161, HSV_BLACK, true);
+        
     }
+    else {
+        // turn animation back on
+        if (!animating){
+            setPinOutput(GP29);
+            writePinHigh(GP29);
+            my_anim = qp_animate(display, 0, 10, image);
+            animating = true;
+        }
+    }
+    
+    qp_drawtext(display, 2, 2, my_font, testText);
+    
+    // lvgl testing
+    // if (qp_lvgl_attach(display)){
+    //     lv_obj_t * label = lv_label_create(lv_scr_act()); /*Add a label to the screen*/
+    //     lv_label_set_text(label, "Hello world");                     /*Set the labels text*/
+    //     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    // }
 }
-
 
 // hid function
 void raw_hid_receive(uint8_t *data, uint8_t length) {
     uint8_t response[length];
     memset(response, 0, length);
-    response[0] = 'B';
-
-    if(data[0] == 'A') {
-        raw_hid_send(response, length);
+    char testString[] = "Responded";
+    for (int i = 0; i < sizeof(testString)/sizeof(testString[0]);i++){
+        response[i] = testString[i];
     }
-}
+    raw_hid_send(response, length);
+    // testText = data;
+    testText = "message received";
+    // testText = ;
+    qp_rect(display, 0,0,130, 12, HSV_BLACK, true);
 
-static painter_font_handle_t my_font;
+}
 
 
 // when KB starts running, set things up
 void keyboard_post_init_user(void) {
-    setPinOutput(GP27);
-    writePinHigh(GP27);
-
-
+    // backlight
     setPinOutput(GP29);
     writePinHigh(GP29);
+
     // debug_enable = true;
+
+    // create display
     display = qp_st7735_make_spi_device(130, 161, GP18, GP16, GP17, 0, 3);
     qp_init(display, QP_ROTATION_180);
     qp_rect(display, 0,0,130, 161, HSV_BLACK, true);
+
+    // load image
     image = qp_load_image_mem(gfx_monaco130);
     // image = qp_load_image_mem(gfx_sanacut);
-    qp_animate(display, 0, 0, image);
+
+    // animate image
+    my_anim = qp_animate(display, 0, 10, image);
+    animating = true;
+
+    // load font
     my_font = qp_load_font_mem(font_aovel);
-    static const char *testText = "Hello from QMK!";
-    qp_drawtext(display, 0, 0, my_font, testText);
+    qp_drawtext(display, 2, 2, my_font, testText);
 }
+
 
 bool process_record_user(uint16_t keycode, keyrecord_t * record) {
     if (record->event.pressed) {
