@@ -47,9 +47,11 @@ def send_raw_report(data):
         interface.close()
 
 if __name__ == '__main__':
-    send_raw_report([
-        0x41
-    ])
+    string = "A"
+    
+    send_raw_report(
+        bytes(string,'ascii')
+    )
     
 # with hid.Device(vendor_id, product_id) as h:
 # 	print(f'Device manufacturer: {h.manufacturer}')
