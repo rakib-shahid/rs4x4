@@ -1,6 +1,10 @@
 import sys
 import hid
 
+import requests
+import apikey
+import time
+
 vendor_id     = 0xFEDD
 product_id    = 0x0753
 
@@ -27,7 +31,7 @@ def send_raw_report(data):
 
     if interface is None:
         print("No device found")
-        sys.exit(1)
+        raise FileNotFoundError
 
     request_data = [0x00] * (report_length + 1) # First byte is Report ID
     request_data[1:len(data) + 1] = data
@@ -46,12 +50,52 @@ def send_raw_report(data):
     finally:
         interface.close()
 
+user = 'rshahid10'
+key = apikey.key
+url = f'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user={user}&api_key={key}&limit=1&format=json'
+
+lastString = "Not playing anything"
+outString = "Not playing anything"
+nowplaying = False
+
 if __name__ == '__main__':
-    string = "A"
+    while True:
+        response = requests.get(url)
+        data = response.json()
+        nowplaying = None
+        try:
+            trackName = data['recenttracks']['track'][0]['name']
+            artistName = data['recenttracks']['track'][0]['artist']['#text']
+        except KeyError:
+            print("KeyError encountered, idk what to do lol")
+        try:
+            if data['recenttracks']['track'][0]['@attr']['nowplaying'] == 'true':
+                nowplaying = True
+        except:
+            nowplaying = False
+        if nowplaying:
+            outString = (f"♪ {artistName} - {trackName}")
+            # check if state changed, if changed print
+            if outString != lastString:
+                try:
+                    send_raw_report(
+                        bytes(outString,'utf-8')
+                    )
+                except FileNotFoundError:
+                    print("Device not connected")
+        else:
+            outString = ("Not playing anything")
+            # check if state changed, if changed print
+            if outString != lastString:
+                try:
+                    send_raw_report(
+                        bytes(outString,'utf-8')
+                    )
+                except FileNotFoundError:
+                    print("Device not connected")
+        lastString = outString
+        time.sleep(1)
     
-    send_raw_report(
-        bytes(string,'ascii')
-    )
     
 # with hid.Device(vendor_id, product_id) as h:
 # 	print(f'Device manufacturer: {h.manufacturer}')
