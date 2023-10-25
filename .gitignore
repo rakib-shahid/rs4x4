@@ -4,3 +4,5 @@ miscellaneousCode/imageManipulation/image/*
 
 !miscellaneousCode/imageManipulation/circuitPython SPI/GIT/.gitkeep
 miscellaneousCode/imageManipulation/circuitPython SPI/GIT/*
+
+miscellaneousCode/testinghid/apikey.py
