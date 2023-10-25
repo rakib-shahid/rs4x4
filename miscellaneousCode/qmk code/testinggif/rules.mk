@@ -2,12 +2,14 @@
 
 QUANTUM_PAINTER_ENABLE 		= yes
 QUANTUM_PAINTER_DRIVERS 	+= st7735_spi
+# QUANTUM_PAINTER_DRIVERS += rgb565_surface
 QUANTUM_PAINTER_NUM_IMAGES	= 1
 QUANTUM_LIB_SRC += spi_master.c
 # QUANTUM_PAINTER_LVGL_INTEGRATION = yes
 
-SRC += monaco130.qgf.c
-SRC += aovel.qff.c
+# SRC += monaco130.qgf.c
+SRC += monacosquare.qgf.c
+SRC += block.qff.c
 # SRC += sanacut.qgf.c
 
 

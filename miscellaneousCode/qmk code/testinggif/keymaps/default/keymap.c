@@ -4,8 +4,8 @@
 #include QMK_KEYBOARD_H
 #include <qp.h>
 // #include "sanacut.qgf.h"
-#include "monaco130.qgf.h"
-#include "aovel.qff.h"
+#include "monacosquare.qgf.h"
+#include "block.qff.h"
 #include "qp_st77xx_opcodes.h"
 #include "qp_st7735_opcodes.h"
 #include "qp_comms.h"
@@ -15,7 +15,14 @@
 static painter_device_t display = NULL;
 static painter_image_handle_t image = NULL;
 static painter_font_handle_t my_font;
-static char *testText = "test text";
+
+static char textArr[50];
+static char test[] = "example text";
+
+// uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)] = {0}; // this is where your image data is stored 
+// painter_device_t surface = qp_make_rgb565_surface(WIDTH, HEIGHT, (void *)framebuffer);
+
+
 static deferred_token my_anim;
 static bool animating = false;
 
@@ -34,14 +41,14 @@ static bool animating = false;
 // uint32_t drawtext_callback(uint32_t trigger_time, void *cb_arg) {
 //     // periodic_drawtext_args_t args = *(periodic_drawtext_args_t *)cb_arg;
 
-//     bool ret = qp_drawtext(display, 0, 0, my_font, testText);
+//     bool ret = qp_drawtext(display, 0, 0, my_font, textArr);
     
 //     if (ret) {
 //         return 17;
 //     }
     
 //     // stop repeating if function failed to draw
-//     free(testText);
+//     free(textArr);
 //     return 0;
 // }
 
@@ -92,7 +99,7 @@ bool qp_st7735_init(painter_device_t device, painter_rotation_t rotation) {
 }
 
 void housekeeping_task_user(void){
-    if (last_input_activity_elapsed() > 10000){
+    if (last_input_activity_elapsed() > 60000){
         // turn animation off on timeout
         if (animating){
             setPinOutput(GP29);
@@ -108,12 +115,12 @@ void housekeeping_task_user(void){
         if (!animating){
             setPinOutput(GP29);
             writePinHigh(GP29);
-            my_anim = qp_animate(display, 0, 15, image);
+            my_anim = qp_animate(display, 0, 0, image);
             animating = true;
         }
     }
     
-    qp_drawtext(display, 2, 2, my_font, testText);
+    qp_drawtext(display, 2, 138, my_font, textArr);
     
     // lvgl testing
     // if (qp_lvgl_attach(display)){
@@ -132,10 +139,10 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
         response[i] = testString[i];
     }
     raw_hid_send(response, length);
-    // testText = data;
-    testText = (char){data};
-    // testText = ;
-    qp_rect(display, 0,0,130, 12, HSV_BLACK, true);
+    // textArr = data;
+    strcpy(textArr,(char *)data);
+    // textArr = ;
+    qp_rect(display, 0,131,130, 161, HSV_BLACK, true);
 
 }
 
@@ -148,25 +155,29 @@ void keyboard_post_init_user(void) {
 
     // debug_enable = true;
 
+    
+    
     // create display
     display = qp_st7735_make_spi_device(130, 161, GP18, GP16, GP17, 0, 3);
     qp_init(display, QP_ROTATION_180);
     qp_rect(display, 0,0,130, 161, HSV_BLACK, true);
 
     // load image
-    image = qp_load_image_mem(gfx_monaco130);
+    image = qp_load_image_mem(gfx_monacosquare);
     // image = qp_load_image_mem(gfx_sanacut);
 
-    // periodic_drawtext_args_t args = {display, 2, 2, my_font, testText,100};
+    // periodic_drawtext_args_t args = {display, 2, 2, my_font, textArr,100};
     // defer_exec(100, drawtext_callback, NULL);
+    strcpy(textArr, test);
+    textArr[sizeof(textArr) - 1] = '\0';
 
     // animate image
-    my_anim = qp_animate(display, 0, 15, image);
+    my_anim = qp_animate(display, 0, 0, image);
     animating = true;
 
     // load font
-    my_font = qp_load_font_mem(font_aovel);
-    qp_drawtext(display, 2, 2, my_font, testText);
+    my_font = qp_load_font_mem(font_block);
+    qp_drawtext(display, 2, 138, my_font, textArr);
 
     
 }
