@@ -17,7 +17,7 @@ static painter_image_handle_t image = NULL;
 static painter_font_handle_t my_font;
 
 static char textArr[50];
-static char test[] = "example text";
+static char test[] = "Initial";
 
 // uint8_t framebuffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(WIDTH, HEIGHT, 16)] = {0}; // this is where your image data is stored 
 // painter_device_t surface = qp_make_rgb565_surface(WIDTH, HEIGHT, (void *)framebuffer);
@@ -120,7 +120,7 @@ void housekeeping_task_user(void){
         }
     }
     
-    qp_drawtext(display, 2, 138, my_font, textArr);
+    
     
     // lvgl testing
     // if (qp_lvgl_attach(display)){
@@ -143,6 +143,7 @@ void raw_hid_receive(uint8_t *data, uint8_t length) {
     strcpy(textArr,(char *)data);
     // textArr = ;
     qp_rect(display, 0,131,130, 161, HSV_BLACK, true);
+    qp_drawtext(display, 2, 138, my_font, textArr);
 
 }
 
