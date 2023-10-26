@@ -117,6 +117,7 @@ void housekeeping_task_user(void){
             writePinHigh(GP29);
             my_anim = qp_animate(display, 0, 0, image);
             animating = true;
+            qp_drawtext(display, 2, 138, my_font, textArr);
         }
     }
     
