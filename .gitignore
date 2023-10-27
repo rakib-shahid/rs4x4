@@ -6,3 +6,7 @@ miscellaneousCode/imageManipulation/image/*
 miscellaneousCode/imageManipulation/circuitPython SPI/GIT/*
 
 miscellaneousCode/testinghid/apikey.py
+miscellaneousCode/testinghid/.cache
+miscellaneousCode/testinghid/__pycache__/*
+miscellaneousCode/testinghid/spotifykeys.py
+
