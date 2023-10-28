@@ -31,7 +31,7 @@ def get_current_track_info():
 #####################################################
 # hid setup
 vendor_id     = 0xFEDD
-product_id    = 0x0753
+product_id    = 0x0754
 
 usage_page    = 0xFF60
 usage         = 0x61
@@ -93,12 +93,12 @@ def getTemps():
 #####################################################
 # function to cycle string
 def cycleString(input_string, i):
-    if len(input_string) > 26:
+    if len(input_string) > 21:
         start_index = i % len(input_string)
         substring = input_string[start_index:] + input_string[:start_index]
-        result = substring[:26]
+        result = substring[:21]
     else:
-        result = input_string
+        result = input_string 
     return result
 
 outString = ''
@@ -115,39 +115,40 @@ while True:
         spotify = spotipy.Spotify(auth_manager=auth_manager)
         get_current_track_info()
     if (track_info["is_playing"]):
-        outString = f'♪ {track_info["artist_name"]} - {track_info["track_name"]} '
+        outString = f'{track_info["artist_name"]} - {track_info["track_name"]} '
         # print(outString)
         if not outString == lastString:
             i = 1
             try:
                 send_raw_report(
-                    bytes(outString[:26],'utf-8')
+                    bytes(outString[:21],'utf-8')
                 )
                 cycled = outString
             except FileNotFoundError:
                 print("Device not connected")
         else:
-            if len(outString) > 26:
+            if len(outString) > 21:
+                send_raw_report(
+                    bytes(cycleString(outString+"| ",i),'utf-8')
+                )
+                i += 1
+            else:
                 send_raw_report(
                     bytes(cycleString(outString,i),'utf-8')
                 )
-                i += 1
             
     else:
-        outString = "not playing"
-        if not outString == lastString:
-            outString = "not playing"
-            try:
-                send_raw_report(
-                    bytes(outString,'utf-8')
-                )
-            except FileNotFoundError:
-                print("Device not connected")
-        i = 1
+        try:
+            send_raw_report(
+                bytes("",'utf-8')
+            )
+        except FileNotFoundError:
+            print("Device not connected")
+        i = 0
         # print(outString)
     
     # print(track_info)
     
-    time.sleep(0.26)
+    time.sleep(0.25)
     lastString = outString
     

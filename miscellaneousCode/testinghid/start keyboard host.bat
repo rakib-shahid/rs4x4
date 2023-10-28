@@ -1,0 +1,2 @@
+pythonw updateScreen.py
+exit
