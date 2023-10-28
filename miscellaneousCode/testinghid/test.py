@@ -1,69 +1,52 @@
-import requests
-import apikey
-import time
-import wmi
+import hid
+#####################################################
+# hid setup
+vendor_id     = 0xFEDD
+product_id    = 0x0753
 
-user = 'rshahid10'
-key = apikey.key
-url = f'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user={user}&api_key={key}&limit=1&format=json'
-# print(apikey.key)
+usage_page    = 0xFF60
+usage         = 0x61
+report_length = 32
+# hid functions
+def get_raw_hid_interface():
+    device_interfaces = hid.enumerate(vendor_id, product_id)
+    raw_hid_interfaces = [i for i in device_interfaces if i['usage_page'] == usage_page and i['usage'] == usage]
 
-lastString = "Not playing anything"
-outString = "Not playing anything"
-nowplaying = False
+    if len(raw_hid_interfaces) == 0:
+        return None
 
-def getCurrentSong(url, lastString, outString, nowplaying):
-    response = requests.get(url)
-    data = response.json()
-    nowplaying = None
+    interface = hid.Device(path=raw_hid_interfaces[0]['path'])
+
+    print(f"Manufacturer: {interface.manufacturer}")
+    print(f"Product: {interface.product}")
+
+    return interface
+
+def send_raw_report(data):
+    interface = get_raw_hid_interface()
+
+    if interface is None:
+        print("No device found")
+        raise FileNotFoundError
+
+    request_data = [0x00] * (report_length + 1) # First byte is Report ID
+    request_data[1:len(data) + 1] = data
+    request_report = bytes(request_data)
+
+    print("Request:")
+    print(request_report)
+
     try:
-        trackName = data['recenttracks']['track'][0]['name']
-        artistName = data['recenttracks']['track'][0]['artist']['#text']
-    except KeyError:
-        print("KeyError encountered, idk what to do lol")
-    try:
-        if data['recenttracks']['track'][0]['@attr']['nowplaying'] == 'true':
-            nowplaying = True
-    except:
-        nowplaying = False
-    if nowplaying:
-        outString = (f"{artistName} - {trackName}")
-        # check if state changed, if changed print
-        if outString != lastString:
-            print(outString)
-    else:
-        outString = ("Not playing anything")
-        # check if state changed, if changed print
-        if outString != lastString:
-            print(outString)
-    return lastString, outString, nowplaying
+        interface.write(request_report)
 
-def getTemps():
-    cpuTemp = 0
-    gpuTemp = 0
-    w = wmi.WMI(namespace="root\OpenHardwareMonitor")
-    temperature_infos = w.Sensor()
-    for sensor in temperature_infos:
-        
-        if sensor.SensorType==u'Temperature':
-            if "cpu package" in (sensor.Name).lower():
-                print("CPU")
-                print(sensor.Value)
-                cpuTemp = sensor.Value
-            if "gpu core" in (sensor.Name).lower():
-                print("GPU")
-                print(sensor.Value)
-                gpuTemp = sensor.Value
-    return cpuTemp,gpuTemp
+        response_report = interface.read(report_length, timeout=1000)
 
-
-getTemps()
-while True:
-    # lastString, outString, nowplaying = getCurrentSong(url,lastString,outString,nowplaying)
-    # lastString = outString
-    getTemps()
-    
-    # time.sleep(1)
-    
-
-        
+        print("Response:")
+        print(response_report)
+    finally:
+        interface.close()
+#####################################################
+if __name__ == '__main__':
+    send_raw_report([
+        0x41
+    ])
