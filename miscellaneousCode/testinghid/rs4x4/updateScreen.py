@@ -72,6 +72,8 @@ def send_raw_report(data):
 
         # print("Response:")
         # print(response_report)
+    except Exception as e:
+        print(e)
     finally:
         interface.close()
 #####################################################
