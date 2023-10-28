@@ -9,4 +9,7 @@ miscellaneousCode/testinghid/apikey.py
 miscellaneousCode/testinghid/.cache
 miscellaneousCode/testinghid/__pycache__/*
 miscellaneousCode/testinghid/spotifykeys.py
+miscellaneousCode/testinghid/rs4x4/.cache
+miscellaneousCode/testinghid/rs4x4/__pycache__/*
+miscellaneousCode/testinghid/rs4x4/spotifykeys.py
 
