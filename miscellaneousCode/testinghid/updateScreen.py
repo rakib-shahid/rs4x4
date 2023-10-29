@@ -6,9 +6,9 @@ import wmi
 import hid
 ###################################### 
 # spotify setup
-SPOTIPY_REDIRECT_URI='https://github.com/rakib-shahid/rs4x4'
+SPOTIPY_REDIRECT_URI='http://localhost:5000/callback'
 
-auth_manager = spotipy.oauth2.SpotifyOAuth(client_id=spotifykeys.client_id, client_secret=spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True,cache_handler=None)
+auth_manager = spotipy.oauth2.SpotifyOAuth(client_id=spotifykeys.client_id, client_secret=spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
 spotify = spotipy.Spotify(auth_manager=auth_manager)
 
 track_info = {
@@ -20,7 +20,6 @@ track_info = {
 def get_current_track_info():
     try:
         response = spotify.current_user_playing_track()
-
         track_info["is_playing"] = response["is_playing"]
         track_info["track_name"] = response["item"]["name"]
         track_info["artist_name"] = response["item"]["artists"][0]["name"]
@@ -150,6 +149,6 @@ while True:
     
     # print(track_info)
     
-    time.sleep(0.26)
+    time.sleep(0.5)
     lastString = outString
     
