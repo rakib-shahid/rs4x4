@@ -149,6 +149,6 @@ if __name__ == '__main__':
         
         # print(track_info)
         
-        time.sleep(0.5)
+        time.sleep(0.25)
         lastString = outString
     
