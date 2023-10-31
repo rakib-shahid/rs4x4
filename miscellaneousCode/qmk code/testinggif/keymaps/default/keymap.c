@@ -3,9 +3,9 @@
 
 #include QMK_KEYBOARD_H
 #include <qp.h>
-// #include "sanacut.qgf.h"
+#include "sanacut.qgf.h"
 #include "monacosquare.qgf.h"
-#include "block.qff.h"
+#include "scp.qff.h"
 #include "qp_st77xx_opcodes.h"
 #include "qp_st7735_opcodes.h"
 #include "qp_comms.h"
@@ -117,10 +117,17 @@ void housekeeping_task_user(void){
             writePinHigh(GP29);
             my_anim = qp_animate(display, 0, 0, image);
             animating = true;
-            qp_drawtext(display, 2, 138, my_font, textArr);
         }
     }
-    
+    if (strstr(textArr,"TWICE") != NULL){
+        if (qp_close_image(image)){
+            image = qp_load_image_mem(gfx_sanacut);
+        }
+    }
+    else{
+        image = qp_load_image_mem(gfx_monacosquare);
+    }
+
     
     
     // lvgl testing
@@ -178,7 +185,7 @@ void keyboard_post_init_user(void) {
     animating = true;
 
     // load font
-    my_font = qp_load_font_mem(font_block);
+    my_font = qp_load_font_mem(font_scp);
     qp_drawtext(display, 2, 138, my_font, textArr);
 
     
