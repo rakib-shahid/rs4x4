@@ -14,8 +14,7 @@ spotify = spotipy.Spotify(auth_manager=auth_manager)
 track_info = {
     "is_playing": False,
     "track_name": '',
-    "artist_name": '',
-    "image_url": ''
+    "artist_name": ''
 }
 # spotify function
 def get_current_track_info():
@@ -24,12 +23,10 @@ def get_current_track_info():
         track_info["is_playing"] = response["is_playing"]
         track_info["track_name"] = response["item"]["name"]
         track_info["artist_name"] = response["item"]["artists"][0]["name"]
-        track_info["image_url"] = response["item"]["album"]["images"][2]["url"]
     except TypeError:
         track_info["is_playing"] = False
         track_info["track_name"] = ""
         track_info["artist_name"] = ""
-        track_info["image_url"] = ""
 #####################################################
 # hid setup
 vendor_id     = 0xFEDD
@@ -124,30 +121,11 @@ while True:
             get_current_track_info()
         start = time.time()
     try:
-<<<<<<< HEAD
-        get_current_track_info()
-    except Exception as e:
-        print(e)
-        print("getting new token")
-        auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
-        spotify = spotipy.Spotify(auth_manager=auth_manager)
-        get_current_track_info()
-        
-    print(track_info["image_url"])
-    
-    if (track_info["is_playing"]):
-        outString = f'♪ {track_info["artist_name"]} - {track_info["track_name"]} '
-        # print(outString)
-        if not outString == lastString:
-            i = 1
-            try:
-=======
         if (track_info["is_playing"]):
             outString = f'♫ {track_info["artist_name"]} - {track_info["track_name"]} '
             # print(outString)
             if not outString == lastString:
                 i = 1
->>>>>>> 783c3416e19a88a7308ec2764a2c24b70e21933c
                 send_raw_report(
                     bytes(outString[:18],'utf-8')
                 )
