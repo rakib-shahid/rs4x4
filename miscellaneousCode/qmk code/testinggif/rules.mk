@@ -7,10 +7,14 @@ QUANTUM_PAINTER_NUM_IMAGES	= 1
 QUANTUM_LIB_SRC += spi_master.c
 # QUANTUM_PAINTER_LVGL_INTEGRATION = yes
 
+# gifs
 # SRC += monaco130.qgf.c
 SRC += monacosquare.qgf.c
-SRC += block.qff.c
-# SRC += sanacut.qgf.c
+SRC += sanacut.qgf.c
+
+# font
+SRC += scp.qff.c
+
 
 
 EXTRALDFLAGS = -Wl,--defsym,FLASH_LEN=8192k

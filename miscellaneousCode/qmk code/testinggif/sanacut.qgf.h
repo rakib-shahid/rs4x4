@@ -8,4 +8,4 @@
 #include <qp.h>
 
 extern const uint32_t gfx_sanacut_length;
-extern const uint8_t  gfx_sanacut[1863391];
+extern const uint8_t  gfx_sanacut[1600707];
