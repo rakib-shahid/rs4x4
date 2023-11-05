@@ -14,7 +14,8 @@ spotify = spotipy.Spotify(auth_manager=auth_manager)
 track_info = {
     "is_playing": False,
     "track_name": '',
-    "artist_name": ''
+    "artist_name": '',
+    "image_url": ''
 }
 # spotify function
 def get_current_track_info():
@@ -23,10 +24,12 @@ def get_current_track_info():
         track_info["is_playing"] = response["is_playing"]
         track_info["track_name"] = response["item"]["name"]
         track_info["artist_name"] = response["item"]["artists"][0]["name"]
+        track_info["image_url"] = response["item"]["album"]["images"][2]["url"]
     except TypeError:
         track_info["is_playing"] = False
         track_info["track_name"] = ""
         track_info["artist_name"] = ""
+        track_info["image_url"] = ""
 #####################################################
 # hid setup
 vendor_id     = 0xFEDD
@@ -119,6 +122,7 @@ while True:
             auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
             spotify = spotipy.Spotify(auth_manager=auth_manager)
             get_current_track_info()
+        print(track_info["image_url"])
         start = time.time()
     try:
         if (track_info["is_playing"]):
