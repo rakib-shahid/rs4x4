@@ -14,26 +14,24 @@ spotify = spotipy.Spotify(auth_manager=auth_manager)
 track_info = {
     "is_playing": False,
     "track_name": '',
-    "artist_name": '',
-    "image_url": ''
+    "artist_name": ''
 }
 # spotify function
 def get_current_track_info():
+    print("in function")
     try:
         response = spotify.current_user_playing_track()
         track_info["is_playing"] = response["is_playing"]
         track_info["track_name"] = response["item"]["name"]
         track_info["artist_name"] = response["item"]["artists"][0]["name"]
-        track_info["image_url"] = response["item"]["album"]["images"][2]["url"]
     except TypeError:
         track_info["is_playing"] = False
         track_info["track_name"] = ""
         track_info["artist_name"] = ""
-        track_info["image_url"] = ""
 #####################################################
 # hid setup
 vendor_id     = 0xFEDD
-product_id    = 0x0753
+product_id    = 0x0754
 
 usage_page    = 0xFF60
 usage         = 0x61
@@ -48,8 +46,8 @@ def get_raw_hid_interface():
 
     interface = hid.Device(path=raw_hid_interfaces[0]['path'])
 
-    # print(f"Manufacturer: {interface.manufacturer}")
-    # print(f"Product: {interface.product}")
+    print(f"Manufacturer: {interface.manufacturer}")
+    print(f"Product: {interface.product}")
 
     return interface
 
@@ -64,20 +62,18 @@ def send_raw_report(data):
     request_data[1:len(data) + 1] = data
     request_report = bytes(request_data)
 
-    # print("Request:")
-    # print(request_report)
+    print("Request:")
+    print(request_report)
 
     try:
         interface.write(request_report)
 
         response_report = interface.read(report_length, timeout=1000)
 
-        # print("Response:")
-        # print(response_report)
+        print("Response:")
+        print(response_report)
     except Exception as e:
         print(e)
-    finally:
-        interface.close()
 #####################################################
 # temp function
 # noticeably slow
@@ -97,66 +93,21 @@ def getTemps():
 #####################################################
 # function to cycle string
 def cycleString(input_string, i):
-    if len(input_string) > 18:
+    if len(input_string) > 21:
         start_index = i % len(input_string)
         substring = input_string[start_index:] + input_string[:start_index]
-        result = substring[:18] + '\0'
+        result = substring[:21]
     else:
-        result = input_string
+        result = input_string 
     return result
 
 outString = ''
 lastString = ''
 cycled = ''
 i = 1
-start = time.time()
-while True:
-    if get_raw_hid_interface() == None:
-        lastString = ''
-    if (time.time()-start) > 0.5:
-        try:
-            get_current_track_info()
-        except Exception as e:
-            print(e)
-            print("getting new token")
-            auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
-            spotify = spotipy.Spotify(auth_manager=auth_manager)
-            get_current_track_info()
-        print(track_info["image_url"])
-        start = time.time()
-    try:
-        if (track_info["is_playing"]):
-            outString = f'♫ {track_info["artist_name"]} - {track_info["track_name"]} '
-            # print(outString)
-            if not outString == lastString:
-                i = 1
-                send_raw_report(
-                    bytes(outString[:18],'utf-8')
-                )
-                cycled = outString
-            else:
-                if len(outString) > 18:
-                    send_raw_report(
-                        bytes(cycleString(outString,i),'utf-8')
+outString = "LE SSERAFIM - Good Parts (when the quality is bad but I am) "
+if __name__ == '__main__':
+    send_raw_report(
+                        bytes(outString,'utf-8')
                     )
-                    i += 1
-                
-        else:
-            outString = "not playing"
-            if not outString == lastString:
-                outString = "not playing"
-
-                send_raw_report(
-                    bytes(outString,'utf-8')
-                )
-                
-            i = 1
-    except FileNotFoundError:
-        print("Device not connected.")
-        # print(outString)
-    
-    # print(track_info)
-    
-    time.sleep(0.1)
-    lastString = outString
     

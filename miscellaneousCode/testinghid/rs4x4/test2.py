@@ -27,7 +27,9 @@ def get_current_track_info():
         track_info["artist_name"] = ""
 #####################################################
 
-
+print(spotify.current_user_recently_played())
+print("bub")
+print(spotify.current_user_playing_track())
 def cycleString(input_string, i):
     if len(input_string) > 26:
         start_index = i % len(input_string)

@@ -6,7 +6,7 @@ import wmi
 import hid
 ###################################### 
 # spotify setup
-SPOTIPY_REDIRECT_URI='http://localhost:5000/callback'
+SPOTIPY_REDIRECT_URI='https://localhost:8888/callback'
 
 auth_manager = spotipy.oauth2.SpotifyOAuth(client_id=spotifykeys.client_id, client_secret=spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
 spotify = spotipy.Spotify(auth_manager=auth_manager)
@@ -45,8 +45,8 @@ def get_raw_hid_interface():
 
     interface = hid.Device(path=raw_hid_interfaces[0]['path'])
 
-    print(f"Manufacturer: {interface.manufacturer}")
-    print(f"Product: {interface.product}")
+    # print(f"Manufacturer: {interface.manufacturer}")
+    # print(f"Product: {interface.product}")
 
     return interface
 
@@ -61,16 +61,16 @@ def send_raw_report(data):
     request_data[1:len(data) + 1] = data
     request_report = bytes(request_data)
 
-    print("Request:")
-    print(request_report)
+    # print("Request:")
+    # print(request_report)
 
     try:
         interface.write(request_report)
 
         response_report = interface.read(report_length, timeout=1000)
 
-        print("Response:")
-        print(response_report)
+        # print("Response:")
+        # print(response_report)
     except Exception as e:
         print(e)
 #####################################################
@@ -104,51 +104,50 @@ outString = ''
 lastString = ''
 cycled = ''
 i = 1
+apiTimer = 0
+
 if __name__ == '__main__':
     while True:
         try:
-            get_current_track_info()
-        except Exception as e:
-            print(e)
-            print("getting new token")
-            auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
-            spotify = spotipy.Spotify(auth_manager=auth_manager)
-            get_current_track_info()
-        if (track_info["is_playing"]):
-            outString = f'{track_info["artist_name"]} - {track_info["track_name"]} '
-            # print(outString)
-            if not outString == lastString:
-                i = 1
+            if (apiTimer % 2 == 0):
                 try:
+                    get_current_track_info()
+                except Exception as e:
+                    print(e)
+                    print("getting new token")
+                    auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
+                    spotify = spotipy.Spotify(auth_manager=auth_manager)
+                    get_current_track_info()
+            # print(track_info)
+            if (track_info["is_playing"]):
+                outString = f'{track_info["artist_name"]} - {track_info["track_name"]}'
+                # print(outString)
+                if not outString == lastString:
+                    i = 1
                     send_raw_report(
                         bytes(outString[:21],'utf-8')
                     )
                     cycled = outString
-                except FileNotFoundError:
-                    print("Device not connected")
-            else:
-                if len(outString) > 21:
-                    send_raw_report(
-                        bytes(cycleString(outString+"| ",i),'utf-8')
-                    )
-                    i += 1
                 else:
-                    send_raw_report(
-                        bytes(cycleString(outString,i),'utf-8')
-                    )
-                
-        else:
-            try:
+                    if len(outString) > 21:
+                        send_raw_report(
+                            bytes(cycleString(outString+" | ",i),'utf-8')
+                        )
+                        i += 1
+                    else:
+                        send_raw_report(
+                            bytes(cycleString(outString,i),'utf-8')
+                        )
+                    
+            else:
                 send_raw_report(
                     bytes("",'utf-8')
                 )
-            except FileNotFoundError:
-                print("Device not connected")
-            i = 0
-            # print(outString)
-        
-        # print(track_info)
-        
-        time.sleep(0.25)
-        lastString = outString
+
+                i = 0
+            apiTimer += 1
+            time.sleep(.25)
+            lastString = outString
+        except FileNotFoundError:
+            print("Device not connected")
     
