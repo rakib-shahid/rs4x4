@@ -23,10 +23,12 @@ def get_current_track_info():
         track_info["is_playing"] = response["is_playing"]
         track_info["track_name"] = response["item"]["name"]
         track_info["artist_name"] = response["item"]["artists"][0]["name"]
+        track_info["image_url"] = response["item"]["album"]["images"][2]["url"]
     except TypeError:
         track_info["is_playing"] = False
         track_info["track_name"] = ""
         track_info["artist_name"] = ""
+        track_info["image_url"] = ""
 #####################################################
 # hid setup
 vendor_id     = 0xFEDD
@@ -50,15 +52,18 @@ def get_raw_hid_interface():
 
     return interface
 
-def send_raw_report(data):
+def send_raw_report(op,data):
     interface = get_raw_hid_interface()
 
     if interface is None:
         print("No device found")
         raise FileNotFoundError
 
-    request_data = [0x00] * (report_length + 1) # First byte is Report ID
-    request_data[1:len(data) + 1] = data
+    request_data = [0x00] * (report_length - 1) # First byte is Report ID
+    request_data[1] = op
+    request_data[2:len(data)] = data
+    print(len(request_data))
+    print(request_data)
     request_report = bytes(request_data)
 
     # print("Request:")
@@ -118,29 +123,30 @@ if __name__ == '__main__':
                     auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
                     spotify = spotipy.Spotify(auth_manager=auth_manager)
                     get_current_track_info()
+                print(track_info["image_url"])
             # print(track_info)
             if (track_info["is_playing"]):
                 outString = f'{track_info["artist_name"]} - {track_info["track_name"]}'
                 # print(outString)
                 if not outString == lastString:
                     i = 1
-                    send_raw_report(
+                    send_raw_report(0xFF,
                         bytes(outString[:21],'utf-8')
                     )
                     cycled = outString
                 else:
                     if len(outString) > 21:
-                        send_raw_report(
+                        send_raw_report(0xFF,
                             bytes(cycleString(outString+" | ",i),'utf-8')
                         )
                         i += 1
                     else:
-                        send_raw_report(
+                        send_raw_report(0xFF,
                             bytes(cycleString(outString,i),'utf-8')
                         )
                     
             else:
-                send_raw_report(
+                send_raw_report(0xFF,
                     bytes("",'utf-8')
                 )
 
@@ -150,4 +156,5 @@ if __name__ == '__main__':
             lastString = outString
         except FileNotFoundError:
             print("Device not connected")
-    
+        except hid.HIDException:
+            print("unable to open device")
