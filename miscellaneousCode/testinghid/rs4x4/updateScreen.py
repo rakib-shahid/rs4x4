@@ -107,6 +107,7 @@ def cycleString(input_string, i):
 
 outString = ''
 lastString = ''
+lastImageUrl = ''
 cycled = ''
 i = 1
 apiTimer = 0
@@ -123,11 +124,16 @@ if __name__ == '__main__':
                     auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
                     spotify = spotipy.Spotify(auth_manager=auth_manager)
                     get_current_track_info()
-                print(track_info["image_url"])
+                
             # print(track_info)
             if (track_info["is_playing"]):
                 outString = f'{track_info["artist_name"]} - {track_info["track_name"]}'
                 # print(outString)
+                if not lastImageUrl == track_info["image_url"]:
+                    print(track_info["image_url"])
+                    send_raw_report(0xCC,
+                        bytes("uhh",'utf-8')
+                    )
                 if not outString == lastString:
                     i = 1
                     send_raw_report(0xFF,
@@ -154,6 +160,7 @@ if __name__ == '__main__':
             apiTimer += 1
             time.sleep(.25)
             lastString = outString
+            lastImageUrl = track_info["image_url"]
         except FileNotFoundError:
             print("Device not connected")
         except hid.HIDException:
