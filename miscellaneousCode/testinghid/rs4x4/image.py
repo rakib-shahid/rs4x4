@@ -67,6 +67,9 @@ def printReqs(opened_img,dims):
     print(f"Minimum HID messages needed: {total_pix*len(bytearray(first_px))/30}")
     print(len(bytearray(first_px)))
 
+def send_image_data(data):
+    send_raw_report(0xCC,data)
+
 image_url = 'https://i.scdn.co/image/ab67616d0000485106ed5d1d101e98e6a270b570'
 opened_img = Image.open(requests.get(image_url,stream=True).raw)
 
@@ -76,6 +79,7 @@ hid_counter = 0
 hid_message_bytes = []
 for r in range(0,64):
     for c in range(0,64):
+        # each hid message can send 30 bytes of data
         if (hid_counter == 30):
             pix_data.append(hid_message_bytes)
             hid_message_bytes = []
@@ -84,10 +88,10 @@ for r in range(0,64):
         curr_px = [x / 255 for x in curr_px]
         hid_message_bytes.append(colorsys.rgb_to_hsv(*curr_px))
         hid_counter += 1
-# add final message (len != 30)
+# add final message (last 16 bytes)
 pix_data.append(hid_message_bytes)
 
-# each hid message can send 30 bytes of data, each pix is 3 bytes
+
 total_hid_messages = len(pix_data)
 print(pix_data[0])
 print()
