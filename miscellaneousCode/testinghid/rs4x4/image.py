@@ -3,6 +3,7 @@ from PIL import Image
 import requests
 import hid
 import colorsys
+import math
 
 
 #####################################################
@@ -56,7 +57,10 @@ def send_raw_report(op,data):
         print(e)
 #####################################################
 
-def printReqs(first_px,total_pix):
+def printReqs(opened_img,dims):
+    first_px = opened_img.getpixel(xy=(0,0))
+    dims = opened_img.size
+    total_pix = dims[0] * dims[1]
     print(f"Total pixels: {total_pix}")
     print(f"Bytes per pixel = {len(bytearray(first_px))}")
     print(f"Total bytes necessary = {total_pix*len(bytearray(first_px))}")
@@ -66,13 +70,29 @@ def printReqs(first_px,total_pix):
 image_url = 'https://i.scdn.co/image/ab67616d0000485106ed5d1d101e98e6a270b570'
 opened_img = Image.open(requests.get(image_url,stream=True).raw)
 
-dims = opened_img.size
-total_pix = dims[0] * dims[1]
-
 pix_data = []
 
-first_px = opened_img.getpixel(xy=(0,0))
+hid_counter = 0
+hid_message_bytes = []
 for r in range(0,64):
     for c in range(0,64):
+        if (hid_counter == 30):
+            pix_data.append(hid_message_bytes)
+            hid_message_bytes = []
+            hid_counter = 0
         curr_px = opened_img.getpixel((r,c))
-        pix_data.append(colorsys.rgb_to_hsv(curr_px[0],curr_px[1],curr_px[2]))
+        curr_px = [x / 255 for x in curr_px]
+        hid_message_bytes.append(colorsys.rgb_to_hsv(*curr_px))
+        hid_counter += 1
+# add final message (len != 30)
+pix_data.append(hid_message_bytes)
+
+# each hid message can send 30 bytes of data, each pix is 3 bytes
+total_hid_messages = len(pix_data)
+print(pix_data[0])
+print()
+
+# first_px = opened_img.getpixel(xy=(0,0))
+# first_px = [x / 255 for x in first_px]
+# print(first_px)
+# print(colorsys.rgb_to_hsv(*first_px))
