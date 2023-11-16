@@ -1,6 +1,5 @@
 import time
 import spotifykeys
-from pprint import pprint
 import spotipy
 import wmi
 import hid
@@ -124,37 +123,27 @@ if __name__ == '__main__':
                     auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
                     spotify = spotipy.Spotify(auth_manager=auth_manager)
                     get_current_track_info()
-                
+            print(track_info)
             # print(track_info)
             if (track_info["is_playing"]):
                 outString = f'{track_info["artist_name"]} - {track_info["track_name"]}'
                 # print(outString)
                 if not lastImageUrl == track_info["image_url"]:
                     print(track_info["image_url"])
-                    send_raw_report(0xCC,
-                        bytes("uhh",'utf-8')
-                    )
+                    send_raw_report(0xCC, bytes("uhh",'utf-8'))
                 if not outString == lastString:
                     i = 1
-                    send_raw_report(0xFF,
-                        bytes(outString[:21],'utf-8')
-                    )
+                    send_raw_report(0xFF, bytes(outString[:21],'utf-8'))
                     cycled = outString
                 else:
                     if len(outString) > 21:
-                        send_raw_report(0xFF,
-                            bytes(cycleString(outString+" | ",i),'utf-8')
-                        )
+                        send_raw_report(0xFF,bytes(cycleString(outString+" | ",i),'utf-8'))
                         i += 1
                     else:
-                        send_raw_report(0xFF,
-                            bytes(cycleString(outString,i),'utf-8')
-                        )
+                        send_raw_report(0xFF, bytes(cycleString(outString,i),'utf-8'))
                     
             else:
-                send_raw_report(0xFF,
-                    bytes("",'utf-8')
-                )
+                send_raw_report(0xFF, bytes("",'utf-8'))
 
                 i = 0
             apiTimer += 1
