@@ -11,20 +11,23 @@ track_info = {
 
 def updateTrackInfo(token):
     current_track_info = sp.getCurrentTrack(token)
-    if (current_track_info != None):
+    # print(f"current_track_info = {current_track_info}")
+    try:
         track_info["is_playing"] = current_track_info["is_playing"]
         track_info["track_name"] = current_track_info["item"]["name"]
         track_info["artist_name"] = current_track_info["item"]["artists"][0]["name"]
         track_info["image_url"] = current_track_info["item"]["album"]["images"][2]["url"]
-    else:
+    except KeyError as e:
+        return sp.getNewToken()
+    except:
         track_info["is_playing"] = False
         track_info["track_name"] = ""
         track_info["artist_name"] = ""
         track_info["image_url"] = ""
 
-token = sp.getToken()
 print(f"track info = {track_info}")
 while True:
+    token = sp.getToken()
     updateTrackInfo(token)
     print(f"updated track info = {track_info}")
-    time.sleep(0.1)
+    time.sleep(0.33)
