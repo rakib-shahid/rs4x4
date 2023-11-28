@@ -6,7 +6,8 @@ import requests
 import spotipy
 import wmi
 import hid
-import colorsys
+# import colorsys
+import re
 import threading
 
 # import math
@@ -31,8 +32,10 @@ old_track_info = {
 }
 # spotify function
 def get_current_track_info():
+    # start = time.process_time()
     try:
         response = spotify.current_user_playing_track()
+        # print("Total time taken to getCurrentTrack = "+ str(time.process_time() - start))
         track_info["is_playing"] = response["is_playing"]
         track_info["track_name"] = response["item"]["name"]
         track_info["artist_name"] = response["item"]["artists"][0]["name"]
@@ -211,48 +214,10 @@ def get_image_data_new(image_url):
 
 
 
-# def get_image_data(image_url):
-#     opened_img = Image.open(requests.get(image_url,stream=True).raw).convert('RGB')
 
-#     pix_data = []
 
-#     pix_counter = 0
-#     hid_message_bytes = []
-#     for r in range(0,64):
-#         for c in range(0,64):
-#             # each hid message can send 27 bytes of data
-#             if (pix_counter == 30):
-#                 pix_data.append(hid_message_bytes)
-#                 hid_message_bytes = []
-#                 pix_counter = 0
-#             curr_px = opened_img.getpixel((r,c))
-#             # print(len(opened_img))
-#             curr_px = [x / 255 for x in curr_px]
-#             curr_px = colorsys.rgb_to_hsv(*curr_px)
-#             for val in curr_px:
-#                 hid_message_bytes.append(int(val*255))
-#             pix_counter += 3
-#     # add final message (last 16 bytes)
-#     pix_data.append(hid_message_bytes)
-#     return pix_data
-#####################################################
-# temp function
-# noticeably slow
-# CURRENTLY UNUSED AS IT SPIKES CPU USAGE
-def getTemps():
-    cpuTemp = 0
-    gpuTemp = 0
-    w = wmi.WMI(namespace="root\OpenHardwareMonitor")
-    temperature_infos = w.Sensor()
-    for sensor in temperature_infos:
-        if sensor.SensorType==u'Temperature':
-            if "cpu package" in (sensor.Name).lower():
-                cpuTemp = sensor.Value
-            if "gpu core" in (sensor.Name).lower():
-                gpuTemp = sensor.Value
-    return f"CPU {'{:.1f}'.format(cpuTemp)} | GPU {'{:.1f}'.format(gpuTemp)}"
-#####################################################
-# function to cycle string
+###################################
+# IMPORTANT FUNCTION
 def cycleString(input_string, i):
     if len(input_string) > 18:
         start_index = i % len(input_string)
@@ -269,9 +234,10 @@ i = 1
 apiTimer = 0
 
 
-def send_image_packet(packet,first,last):
-    send_image_data(bytes(packet),first=first,last=last)
 
+
+###################################
+# IMPORTANT FUNCTION
 def image_hid():
     
     hidmessages = get_image_data_new(track_info["image_url"])  
@@ -288,6 +254,8 @@ def image_hid():
     threads.clear()
     print("image_hid thread done")
 
+###################################
+# IMPORTANT FUNCTION
 def check_song():
     global song_changed
     global threads
@@ -318,7 +286,7 @@ def check_song():
                 
                 
                 
-            time.sleep(0.33)
+            time.sleep(0.5)
             old_track_info["is_playing"] = track_info["is_playing"]
             old_track_info["track_name"] = track_info["track_name"]
             old_track_info["artist_name"] = track_info["artist_name"]
@@ -335,6 +303,11 @@ song_change_thread = threading.Thread(target=check_song)
 song_change_thread.daemon = True
 song_change_thread.start()
 
+###################################
+# IMPORTANT FUNCTION
+def clean_song_string(song_string):
+    cleaned_string = re.sub(r'[^a-zA-Z0-9\s♫-]', '?', song_string)
+    return cleaned_string
 
 while True:
     try:
@@ -342,14 +315,14 @@ while True:
             outString = f'♫ {track_info["artist_name"]} - {track_info["track_name"]} '
             if not (outString == lastString):
                 i = 1
-                send_raw_report(0xFF, bytes(outString[:18],'utf-8'))
+                send_raw_report(0xFF, bytes(clean_song_string(outString[:18]),'utf-8'))
                 cycled = outString
             else:
                 if len(outString) > 18:
-                    send_raw_report(0xFF,bytes(cycleString(outString,i),'utf-8'))
+                    send_raw_report(0xFF,bytes(clean_song_string(cycleString(outString,i)),'utf-8'))
                     i += 1
                 else:
-                    send_raw_report(0xFF, bytes(cycleString(outString,i),'utf-8'))
+                    send_raw_report(0xFF, bytes(clean_song_string(cycleString(outString,i)),'utf-8'))
                 
         else:
             send_raw_report(0xFF, bytes("",'utf-8'))
