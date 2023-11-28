@@ -308,7 +308,7 @@ song_change_thread.start()
 ###################################
 # IMPORTANT FUNCTION
 def clean_song_string(song_string):
-    cleaned_string = re.sub(r'[^a-zA-Z0-9\s♫-]', '?', song_string)
+    cleaned_string = re.sub(r'[^\x00-\x7F♫]', '?', song_string)
     return cleaned_string
 
 while True:
