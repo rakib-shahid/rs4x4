@@ -26,41 +26,45 @@ def writeToken(token):
     f.write(str(token).replace("'", '"'))
     f.close()
 
-# gets token locally or new one online
-def getToken():
-    token = None
-    try:
-        token = readToken()
-    except:
-        authorization_url, state = spotify.authorization_url(auth_url)
-        print('Please go here and authorize: ', authorization_url)
-        webbrowser.open(authorization_url)
-        redirect_response = input('\n\nPaste the full redirect URL here: ')
+def getNewToken():
+    authorization_url, state = spotify.authorization_url(auth_url)
+    print('Please go here and authorize: ', authorization_url)
+    webbrowser.open(authorization_url)
+    redirect_response = input('\n\nPaste the full redirect URL here: ')
 
-        auth = HTTPBasicAuth(client_id, client_secret)
-        token = spotify.fetch_token(token_url, auth=auth, authorization_response=redirect_response)
-        writeToken(token)
-        token = token['access_token']
-    finally:
-        # print(token)
-        return token
+    auth = HTTPBasicAuth(client_id, client_secret)
+    token = spotify.fetch_token(token_url, auth=auth, authorization_response=redirect_response)
+    writeToken(token)
+    token = token['access_token']
+    return token
+
+# gets token locally or new one online
+def getToken(new=None):
+    token = None
+    if not new:
+        try:
+            token = readToken()
+        except:
+            token = getNewToken()
+        finally:
+            return token
+    else:
+        return getNewToken()
         
 # returns json of api response
 def getCurrentTrack(token):
     out = None
-    start = time.process_time()
     url = 'https://api.spotify.com/v1/me/player/currently-playing/'
     headers = {
         'Authorization':f'Bearer {token}'
     }
-    response = requests.get(url,headers=headers)
+    response = requests.get(url,headers=headers, stream=True)
     try:
         out = json.loads(response.content)
         return out
     except Exception as e:
         print("Not playing anything")
     finally:
-        print("Total time taken to getCurrentTrack = "+ str(time.process_time() - start))
         return out
 
     
