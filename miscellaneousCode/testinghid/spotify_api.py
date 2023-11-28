@@ -16,19 +16,22 @@ def readToken():
         token = json.loads(token_content)
         return token['access_token']
     else:
-        raise IndexError
+        raise FileNotFoundError
 
 def writeToken(token):
     f = open("test.cache", "w")
     f.write(str(token).replace("'", '"'))
     f.close()
 
+# gets token locally or new one online
 def getToken():
+    token = None
     try:
         token = readToken()
     except:
         authorization_url, state = spotify.authorization_url(auth_url)
         print('Please go here and authorize: ', authorization_url)
+        webbrowser.open(authorization_url)
         redirect_response = input('\n\nPaste the full redirect URL here: ')
 
         auth = HTTPBasicAuth(client_id, client_secret)
@@ -39,15 +42,18 @@ def getToken():
         # print(token)
         return token
         
-
+# returns json of api response
 def getCurrentTrack():
     url = 'https://api.spotify.com/v1/me/player/currently-playing/'
     headers = {
         'Authorization':f'Bearer {getToken()}'
     }
     response = requests.get(url,headers=headers)
-    print(response.text)
+    try:
+        return json.loads(response.content)
+    except:
+        return None
 
 token = getToken()
-(getCurrentTrack())
+getCurrentTrack()
 # print(readToken())
