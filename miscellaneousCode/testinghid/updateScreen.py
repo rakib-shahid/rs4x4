@@ -189,6 +189,8 @@ class ImageSender:
                 response_report = interface.read(report_length, timeout=1000)
             finally:
                 interface.close()
+
+
 def get_image_data_new(image_url):
     sender  = ImageSender(image_url)
     
