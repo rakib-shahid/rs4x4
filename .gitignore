@@ -10,6 +10,7 @@ miscellaneousCode/testinghid/.cache
 miscellaneousCode/testinghid/test.cache
 miscellaneousCode/finalHID/test.cache
 miscellaneousCode/finalHID/spotifykeys.py
+miscellaneousCode/finalHID/__pycache__/*
 miscellaneousCode/testinghid/__pycache__/*
 miscellaneousCode/testinghid/spotifykeys.py
 miscellaneousCode/testinghid/rs4x4/.cache
