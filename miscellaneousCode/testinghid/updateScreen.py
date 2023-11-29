@@ -83,7 +83,7 @@ def send_raw_report(op,data):
     else:
         request_data[2] = 0
     # print(f"len(request_data) = {len(request_data)}")
-    print(f"request_data = {request_data}")
+    # print(f"request_data = {request_data}")
     request_report = bytes(request_data)
 
     # print("Request:")
@@ -118,7 +118,7 @@ def send_image_data(data,first = None,last=None):
         request_data[1] = 0xFE
     request_data[2:len(data)] = data
     # print(f"len(request_data) = {len(request_data)}")
-    print(f"image_data = {request_data}")
+    # print(f"image_data = {request_data}")
     # print(f"Raw bytes = {bytes(request_data)}")
 
     try:
@@ -142,6 +142,7 @@ class ImageSender:
     def __init__(self, url: str):
         """Create the 'sender' by storing the Pillow Image and its QMK'ized data"""
         _image = Image.open(requests.get(url,stream=True).raw).convert('RGB')
+        # _image.show()
 
         _buffer = []
         for row in range(_image.height):
@@ -149,8 +150,8 @@ class ImageSender:
                 rgb = _image.getpixel((row, col))
                 fsf = rgb_to565(*rgb) 
                 _buffer.append(fsf)
-
-        self._image = _image
+        _image.close()
+        # self._image = _image
         self._buffer = _buffer
 
 
@@ -163,7 +164,6 @@ class ImageSender:
         """Method to send"""
 
         interface = get_raw_hid_interface()
-        print(interface)
         if interface is None:
             raise NoDeviceException
 
@@ -182,7 +182,7 @@ class ImageSender:
         for chunk in self._chunks(n):
             request[2] = len(chunk)
             request[2:2 + len(chunk)] = chunk
-            print(request)
+            # print(request)
 
             try:
                 interface.write(bytes(request))
@@ -262,7 +262,6 @@ def check_song():
     global song_changed
     global threads
     while True:
-        print(track_info)
         try:
             try:
                 get_current_track_info()
@@ -272,7 +271,7 @@ def check_song():
                 auth_manager = spotipy.oauth2.SpotifyOAuth(spotifykeys.client_id, spotifykeys.client_secret, redirect_uri= SPOTIPY_REDIRECT_URI,scope='user-read-currently-playing', show_dialog=True)
                 spotify = spotipy.Spotify(auth_manager=auth_manager)
                 get_current_track_info()
-            if not (track_info["image_url"] == old_track_info["image_url"]):
+            if (not (track_info["image_url"] == old_track_info["image_url"])) or (not (track_info["is_playing"] == old_track_info["is_playing"])):
                 
                 if (len(threads) == 0):
                     image_thread = threading.Thread(target=image_hid)
@@ -280,7 +279,7 @@ def check_song():
                     threads.append(image_thread)
                 else:
                     threads.append(1)
-                    time.sleep(.05)
+                    time.sleep(.1)
                     image_thread = threading.Thread(target=image_hid)
                     image_thread.start()
                     threads.append(image_thread)
@@ -331,7 +330,7 @@ while True:
 
             i = 0
         apiTimer += 1
-        time.sleep(.33)
+        time.sleep(.5)
         lastString = outString
         
     except FileNotFoundError:
