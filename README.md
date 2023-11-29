@@ -4,6 +4,8 @@
 
 A vial compatible 4x4 macropad built with the YD-RP2040, has a 128x64 OLED display, and rgb lighting
 
+This repository is currently a lot of disorganized code. Will be cleaned up at a later point in time.
+
 [original animation source](https://gifer.com/en/1F4J)
 
 * Keyboard Maintainer: [Rakib Shahid](https://github.com/rakib-shahid)
