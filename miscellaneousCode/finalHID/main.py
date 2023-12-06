@@ -1,5 +1,6 @@
 import spotify_api as sp
 import time
+import imagehid
 # print(sp.getCurrentTrack())
 
 track_info = {
@@ -30,4 +31,5 @@ while True:
     token = sp.getToken()
     updateTrackInfo(token)
     print(f"updated track info = {track_info}")
+    # print(len(imagehid.get_image_bytes(track_info["image_url"])))
     time.sleep(0.33)
