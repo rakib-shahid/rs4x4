@@ -8,6 +8,7 @@ import wmi
 import hid
 # import colorsys
 import re
+from unidecode import unidecode
 import threading
 
 # import math
@@ -308,13 +309,15 @@ song_change_thread.start()
 ###################################
 # IMPORTANT FUNCTION
 def clean_song_string(song_string):
-    cleaned_string = re.sub(r'[^a-zA-Z0-9\s♫-]', '?', song_string)
+    og_regex = r'[^a-zA-Z0-9 ♫()\-*+,./:;_{}[\]#$%^&*@!<>=|\\]`~'
+    cleaned_string = re.sub(og_regex, '?', song_string)
+    print(cleaned_string)
     return cleaned_string
 
 while True:
     try:
         if (track_info["is_playing"]):
-            outString = f'♫ {track_info["artist_name"]} - {track_info["track_name"]} '
+            outString = f'♫ {unidecode(track_info["artist_name"])} - {unidecode(track_info["track_name"])} '
             if not (outString == lastString):
                 i = 1
                 send_raw_report(0xFF, bytes(clean_song_string(outString[:18]),'utf-8'))
