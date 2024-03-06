@@ -4,11 +4,10 @@ import spotifykeys
 from PIL import Image
 import requests
 import spotipy
-import wmi
+# import wmi
 import hid
 # import colorsys
 import re
-from unidecode import unidecode
 import threading
 
 # import math
@@ -84,7 +83,7 @@ def send_raw_report(op,data):
     else:
         request_data[2] = 0
     # print(f"len(request_data) = {len(request_data)}")
-    print(f"request_data = {request_data}")
+    # print(f"request_data = {request_data}")
     request_report = bytes(request_data)
 
     # print("Request:")
@@ -119,7 +118,7 @@ def send_image_data(data,first = None,last=None):
         request_data[1] = 0xFE
     request_data[2:len(data)] = data
     # print(f"len(request_data) = {len(request_data)}")
-    print(f"image_data = {request_data}")
+    # print(f"image_data = {request_data}")
     # print(f"Raw bytes = {bytes(request_data)}")
 
     try:
@@ -145,11 +144,15 @@ class ImageSender:
         _image = Image.open(requests.get(url,stream=True).raw).convert('RGB')
 
         _buffer = []
-        for row in range(_image.height):
-            for col in range(_image.width):
-                rgb = _image.getpixel((row, col))
+        for col in range(_image.width):
+            for row in range(_image.height):
+                rgb = _image.getpixel((col, row))
                 fsf = rgb_to565(*rgb) 
                 _buffer.append(fsf)
+            
+        for i in range(65):
+            # Insert black pixels to the end of each row
+            _buffer.append(rgb_to565(0,0,0) )
 
         self._image = _image
         self._buffer = _buffer
@@ -164,7 +167,7 @@ class ImageSender:
         """Method to send"""
 
         interface = get_raw_hid_interface()
-        print(interface)
+        # print(interface)
         if interface is None:
             raise NoDeviceException
 
@@ -183,7 +186,7 @@ class ImageSender:
         for chunk in self._chunks(n):
             request[2] = len(chunk)
             request[2:2 + len(chunk)] = chunk
-            print(request)
+            # print(request)
 
             try:
                 interface.write(bytes(request))
@@ -263,7 +266,7 @@ def check_song():
     global song_changed
     global threads
     while True:
-        print(track_info)
+        # print(track_info)
         try:
             try:
                 get_current_track_info()
@@ -311,13 +314,13 @@ song_change_thread.start()
 def clean_song_string(song_string):
     og_regex = r'[^a-zA-Z0-9 ♫()\-*+,./:;_{}[\]#$%^&*@!<>=|\\]`~'
     cleaned_string = re.sub(og_regex, '?', song_string)
-    print(cleaned_string)
+    # print(cleaned_string)
     return cleaned_string
 
 while True:
     try:
         if (track_info["is_playing"]):
-            outString = f'♫ {unidecode(track_info["artist_name"])} - {unidecode(track_info["track_name"])} '
+            outString = f'♫ {(track_info["artist_name"])} - {(track_info["track_name"])} '
             if not (outString == lastString):
                 i = 1
                 send_raw_report(0xFF, bytes(clean_song_string(outString[:18]),'utf-8'))
