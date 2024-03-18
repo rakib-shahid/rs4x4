@@ -118,8 +118,8 @@ def send_image_data(data,first = None,last=None):
         request_data[1] = 0xFE
     request_data[2:len(data)] = data
     # print(f"len(request_data) = {len(request_data)}")
-    # print(f"image_data = {request_data}")
-    # print(f"Raw bytes = {bytes(request_data)}")
+    print(f"image_data = {request_data}")
+    print(f"Raw bytes = {bytes(request_data)}")
 
     try:
         interface.write(bytes(request_data))
@@ -317,9 +317,14 @@ def clean_song_string(song_string):
     # print(cleaned_string)
     return cleaned_string
 
+idle_sent = False
+
 while True:
     try:
+        
         if (track_info["is_playing"]):
+            if idle_sent:
+                idle_sent = False
             outString = f'♫ {(track_info["artist_name"])} - {(track_info["track_name"])} '
             if not (outString == lastString):
                 i = 1
@@ -333,11 +338,14 @@ while True:
                     send_raw_report(0xFF, bytes(clean_song_string(cycleString(outString,i)),'utf-8'))
                 
         else:
-            send_raw_report(0xFF, bytes("",'utf-8'))
+            if not idle_sent:
+                send_raw_report(0xFF, bytes("",'utf-8'))
+                idle_sent = True
+                print("Not playing hid message sent")
 
             i = 0
         apiTimer += 1
-        time.sleep(.33)
+        time.sleep(0.33)
         lastString = outString
         
     except FileNotFoundError:
