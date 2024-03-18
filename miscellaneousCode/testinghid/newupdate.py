@@ -72,7 +72,6 @@ def send_raw_report(op,data):
     interface = get_raw_hid_interface()
 
     if interface is None:
-        print("No device found")
         raise FileNotFoundError
 
     request_data = [0x00] * (report_length - 3) # First byte is Report ID
@@ -144,12 +143,15 @@ class ImageSender:
         _image = Image.open(requests.get(url,stream=True).raw).convert('RGB')
 
         _buffer = []
+        # f = open('fsf.txt','a')
+        
         for col in range(_image.width):
             for row in range(_image.height):
                 rgb = _image.getpixel((col, row))
                 fsf = rgb_to565(*rgb) 
+                # f.write(str(fsf))
                 _buffer.append(fsf)
-            
+        # f.close()
         # for i in range(65):
         #     # Insert black pixels to the end of each row
         #     _buffer.append(rgb_to565(0,0,0) )
@@ -213,18 +215,23 @@ def get_image_data_new(image_url):
     hid_messages = []
     hidmessages = []
     i = 0
+    # f = open('allinfo.txt', 'w')
+    
+    
     while i < len(all_data):
+        # f.write(str(all_data[i:i+30]))
         hid_messages.append(all_data[i:i+30])
         i += 30
-    for column in columns:
-        hidmessages.append(column[:30])
-        hidmessages.append(column[30:60])
-        hidmessages.append(column[60:90])
-        hidmessages.append(column[90:120])
-        hidmessages.append(column[120:])
-    print(len(hid_messages))
-    print(len(hid_messages[0]))
-    print(hid_messages)
+    # f.close()
+    # for column in columns:
+    #     hidmessages.append(column[:30])
+    #     hidmessages.append(column[30:60])
+    #     hidmessages.append(column[60:90])
+    #     hidmessages.append(column[90:120])
+    #     hidmessages.append(column[120:])
+    # print(len(hid_messages))
+    # print(len(hid_messages[0]))
+    # print(hid_messages)
     return hid_messages
 
 
@@ -259,7 +266,6 @@ def image_hid():
     i = 0
     
     while (track_info["is_playing"] and len(threads) == 1 and i < len(hidmessages)):
-        print(i)
         if i == 0:
             send_image_data(bytes(hidmessages[i]),first=True)
         if i == len(hidmessages) - 1:
@@ -322,7 +328,8 @@ song_change_thread.start()
 ###################################
 # IMPORTANT FUNCTION
 def clean_song_string(song_string):
-    og_regex = r'[^a-zA-Z0-9 ♫()\-*+,./:;_{}[\]#$%^&*@!<>=|\\]`~'
+    # og_regex = r'[^\x00-\x7F|]'
+    og_regex = r'[^\x00-\x7F\♫]'
     cleaned_string = re.sub(og_regex, '?', song_string)
     # print(cleaned_string)
     return cleaned_string
@@ -336,16 +343,17 @@ while True:
             if idle_sent:
                 idle_sent = False
             outString = f'♫ {(track_info["artist_name"])} - {(track_info["track_name"])} '
+            # print(clean_song_string(outString))
             if not (outString == lastString):
                 i = 1
                 send_raw_report(0xFF, bytes(clean_song_string(outString[:18]),'utf-8'))
                 cycled = outString
             else:
                 if len(outString) > 18:
-                    send_raw_report(0xFF,bytes(clean_song_string(cycleString(outString,i)),'utf-8'))
+                    send_raw_report(0xFF,bytes(clean_song_string(cycleString(outString,i)[:18]),'utf-8'))
                     i += 1
                 else:
-                    send_raw_report(0xFF, bytes(clean_song_string(cycleString(outString,i)),'utf-8'))
+                    send_raw_report(0xFF, bytes(clean_song_string(cycleString(outString,i)[:18]),'utf-8'))
                 
         else:
             if not idle_sent:
@@ -359,7 +367,7 @@ while True:
         lastString = outString
         
     except FileNotFoundError:
-        print("Device not connected")
+        pass
     except hid.HIDException:
         print("unable to open device")
     
