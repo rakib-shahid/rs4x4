@@ -215,14 +215,14 @@ def get_image_data_new(image_url):
     hid_messages = []
     hidmessages = []
     i = 0
-    # f = open('allinfo.txt', 'w')
-    
-    
+    print(all_data)
+    f = open('allinfo.txt', 'w')
+    f.write(str(all_data).replace('[','').replace(']',''))
     while i < len(all_data):
         # f.write(str(all_data[i:i+30]))
         hid_messages.append(all_data[i:i+30])
         i += 30
-    # f.close()
+    f.close()
     # for column in columns:
     #     hidmessages.append(column[:30])
     #     hidmessages.append(column[30:60])
