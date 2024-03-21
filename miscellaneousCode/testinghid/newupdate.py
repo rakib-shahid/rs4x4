@@ -142,7 +142,7 @@ class NoDeviceException(Exception):
 class ImageSender:
     def __init__(self, url: str):
         """Create the 'sender' by storing the Pillow Image and its QMK'ized data"""
-        _image = Image.open(requests.get(url,stream=True).raw).convert('RGB')
+        _image = Image.open(requests.get(url,stream=True).raw).resize((64,64)).convert('RGB')
 
         _buffer = []
         # f = open('fsf.txt','a')
