@@ -1,3 +1,4 @@
+import subprocess
 import time
 from typing import Iterable
 import spotifykeys
@@ -7,6 +8,7 @@ import spotipy
 # import wmi
 import hid
 # import colorsys
+import os
 import re
 import threading
 
@@ -265,14 +267,15 @@ def image_hid():
     hidmessages = get_image_data_new(track_info["image_url"])  
     i = 0
     
-    while (track_info["is_playing"] and len(threads) == 1 and i < len(hidmessages)):
-        if i == 0:
-            send_image_data(bytes(hidmessages[i]),first=True)
-        if i == len(hidmessages) - 1:
-            send_image_data(bytes(hidmessages[i]),last=True)
-        else:
-            send_image_data(bytes(hidmessages[i]))
-        i+= 1
+    # while (track_info["is_playing"] and len(threads) == 1 and i < len(hidmessages)):
+    #     if i == 0:
+    #         send_image_data(bytes(hidmessages[i]),first=True)
+    #     if i == len(hidmessages) - 1:
+    #         send_image_data(bytes(hidmessages[i]),last=True)
+    #     else:
+    #         send_image_data(bytes(hidmessages[i]))
+    #     i+= 1
+    subprocess.call('./my_program.exe')
     threads.clear()
     print("image_hid thread done")
 
